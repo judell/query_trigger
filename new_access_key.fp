@@ -1,4 +1,4 @@
-trigger "query" "aws_iam_access_key" {
+trigger "query" "new_aws_iam_access_key" {
   connection_string = "postgres://steampipe@localhost:9193/steampipe"
   schedule = "* * * * *"
   primary_key = "message"
@@ -19,17 +19,6 @@ trigger "query" "aws_iam_access_key" {
     }
   }
 
-}
-
-pipeline "test" {
-
-  param "message" {
-    type = string
-  }
-
-  output "test" {
-    value = param.message
-  }
 }
 
 pipeline "email" {
@@ -58,30 +47,4 @@ pipeline "email" {
   }
 
 }
-
-/*
-pipeline "display" {
-
-    param "rows" {
-    }
-
-    step "pipeline" "email" {
-      pipeline = pipeline.email
-      args = {
-        message = param.rows[0].now
-      }
-    }
-
-    output "rows" {
-      value = param.rows[0].now
-    }
-
-    output "now" {
-      value = timestamp()
-    }
-
-}
-*/    
-
-
 
