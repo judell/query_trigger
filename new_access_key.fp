@@ -1,13 +1,13 @@
 trigger "query" "new_aws_iam_access_key" {
   connection_string = "postgres://steampipe@localhost:9193/steampipe"
-  schedule = "* * * * *"
-  primary_key = "message"
-  sql = <<EOQ
-    SELECT json_agg(t)::text AS message
-    FROM (
-      SELECT user_name, access_key_id
-      FROM aws_iam_access_key
-      WHERE create_date > NOW() - INTERVAL '1 day'
+  schedule          = "daily"
+  primary_key       = "message"
+  sql               = <<EOQ
+    select json_agg(t)::text as message
+    from (
+      select user_name, access_key_id
+      from aws_iam_access_key
+      where create_date > now() - interval '1 day'
     ) t;  
   EOQ
 
@@ -15,36 +15,30 @@ trigger "query" "new_aws_iam_access_key" {
     pipeline = pipeline.email
 
     args = {
-      message = self.inserted_rows[0].message
+      subject       = "New access key(s) detected"
+      message       = self.inserted_rows[0].message
+      smtp_username = "judell@turbot.com"
+      smtp_host     = "smtp.gmail.com"
     }
   }
-
 }
 
 pipeline "email" {
-
-  param "message" {
-    type = string
-  }
-
-  output "test" {
-    value = env("FLOWPIPE_EMAIL_APP_PW")
-  }
+  param "subject"       { type = string }
+  param "message"       { type = string }
+  param "smtp_username" { type = string }
+  param "smtp_host"     { type = string }
 
   step "email" "send_it" {
-      to                = ["judell@turbot.com"]
-      from              = "judell@turbot.com"
-      smtp_username     = "judell@turbot.com"
-      #smtp_password     = "gsrvoiaeojgklpht"
-      smtp_password     = env("FLOWPIPE_EMAIL_APP_PW")
-      host              = "smtp.gmail.com"
-      port              = 587
-      subject           = "new access key"
-      content_type      = "text/html"
-      body              = <<EOT
-        "New access key ${param.message}"
-      EOT
+    to            = ["${param.smtp_username}"]
+    from          = "${param.smtp_username}"
+    smtp_username = "${param.smtp_username}"
+    smtp_password = env("FLOWPIPE_EMAIL_APP_PW")
+    host          = "${param.smtp_host}"
+    port          = 587
+    subject       = "${param.subject}"
+    content_type  = "text/html"
+    body          = "New access key ${param.message}"
   }
-
 }
 
