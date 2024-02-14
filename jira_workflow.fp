@@ -38,7 +38,6 @@ trigger "query" "jira_issue" {
 }
 
 pipeline "enrich_jira_with_ip_info" {
-  title = "Enrich IP address cited in Jira issue"
   description = "When a Jira issue cites an IP address, correlate with VPC and add results as a comment."
 
   param "rows" {
