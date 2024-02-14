@@ -1,5 +1,4 @@
 pipeline "email" {
-  title           = "Send an email"
   description     = "Send an email using the built-in email step"
   param "smtp_username" { type = string }
   param "smtp_host"     { type = string }
@@ -18,3 +17,5 @@ pipeline "email" {
     body          = "${param.message}"
   }
 }
+
+

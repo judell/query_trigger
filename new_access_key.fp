@@ -1,7 +1,7 @@
 trigger "query" "new_aws_iam_access_key" {
+  description       = "Fire when a new key appears, call email-notifying pipeline"
   connection_string = "postgres://steampipe@localhost:9193/steampipe"
-#  schedule          = "5m"           # every 5 minutes
- schedule          = "* * * * *"    # every minute
+  schedule          = "* * * * *"    # every minute
   primary_key       = "message"
   sql               = <<EOQ
     select jsonb_pretty(jsonb_agg(t))::text as message
