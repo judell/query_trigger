@@ -1,8 +1,10 @@
 pipeline "email" {
-  param "subject"       { type = string }
-  param "message"       { type = string }
+  title           = "Send an email"
+  description     = "Send an email using the built-in email step"
   param "smtp_username" { type = string }
   param "smtp_host"     { type = string }
+  param "subject"       { type = string }
+  param "message"       { type = string }
 
   step "email" "send_it" {
     to            = ["${param.smtp_username}"]
@@ -13,6 +15,6 @@ pipeline "email" {
     port          = 587
     subject       = "${param.subject}"
     content_type  = "text/html"
-    body          = "New access key ${param.message}"
+    body          = "${param.message}"
   }
 }

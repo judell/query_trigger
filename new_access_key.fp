@@ -1,9 +1,10 @@
 trigger "query" "new_aws_iam_access_key" {
   connection_string = "postgres://steampipe@localhost:9193/steampipe"
-  schedule          = "daily"
+#  schedule          = "5m"           # every 5 minutes
+ schedule          = "* * * * *"    # every minute
   primary_key       = "message"
   sql               = <<EOQ
-    select json_agg(t)::text as message
+    select jsonb_pretty(jsonb_agg(t))::text as message
     from (
       select user_name, access_key_id
       from aws_iam_access_key
@@ -15,10 +16,10 @@ trigger "query" "new_aws_iam_access_key" {
     pipeline = pipeline.email
 
     args = {
-      subject       = "New access key(s) detected"
-      message       = self.inserted_rows[0].message
       smtp_username = "judell@turbot.com"
       smtp_host     = "smtp.gmail.com"
+      subject       = "New access key(s) detected"
+      message       = "<pre>${self.inserted_rows[0].message}</pre>"
     }
   }
 }
