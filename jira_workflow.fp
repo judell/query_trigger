@@ -1,9 +1,7 @@
 trigger "query" "jira_issue" {
-  title = "IP address cited in Jira issue"
   description = "Fire when a Jira issue cites an IP address"
   connection_string = "postgres://steampipe@localhost:9193/steampipe"
-  #schedule = "5m"
-  schedule = "* * * * *"
+  schedule = "5m"
   sql = <<EOQ
       with ip_info as (
         select 
@@ -20,11 +18,7 @@ trigger "query" "jira_issue" {
           jira_issue
       )
         select distinct
-          j.id,
-          j.key,
-          i.host,
-          i.vpc_id,
-          s.account_id,
+          j.id, j.key, i.host, i.vpc_id,s.account_id,
           s.region
         from
           aws_vpc_security_group s
@@ -41,7 +35,6 @@ trigger "query" "jira_issue" {
       rows = self.inserted_rows
     }
   }
-
 }
 
 pipeline "enrich_jira_with_ip_info" {
